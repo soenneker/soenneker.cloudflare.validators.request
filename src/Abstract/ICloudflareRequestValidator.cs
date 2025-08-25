@@ -1,4 +1,5 @@
-﻿using Soenneker.Validators.Validator.Abstract;
+﻿using Microsoft.AspNetCore.Http;
+using Soenneker.Validators.Validator.Abstract;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,5 +11,7 @@ namespace Soenneker.Cloudflare.Validators.Request.Abstract;
 /// </summary>
 public interface ICloudflareRequestValidator : IValidator, IDisposable, IAsyncDisposable
 {
+    ValueTask<bool> IsFromCloudflare(HttpContext context, CancellationToken cancellationToken = default);
+
     ValueTask<bool> Validate(string thumbprint, CancellationToken cancellationToken = default);
 }

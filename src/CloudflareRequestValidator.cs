@@ -1,5 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Soenneker.Cloudflare.Validators.Request.Abstract;
+using Soenneker.Extensions.Spans.Readonly;
 using Soenneker.Extensions.String;
 using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.AsyncSingleton;
@@ -8,12 +11,9 @@ using Soenneker.Validators.Validator;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 
 namespace Soenneker.Cloudflare.Validators.Request;
 
@@ -48,32 +48,9 @@ public sealed class CloudflareRequestValidator : Validator, ICloudflareRequestVa
             return false;
         }
 
-        Span<byte> sha256 = stackalloc byte[32];
+        ReadOnlySpan<byte> data = cert.RawData;
 
-        using (var hasher = SHA256.Create())
-        {
-            if (!hasher.TryComputeHash(cert.RawData, sha256, out _))
-            {
-                if (_log)
-                    Logger.LogDebug("Could not compute hash for certificate's raw data");
-
-                return false;
-            }
-        }
-
-        Span<char> hex = stackalloc char[64];
-
-        for (var i = 0; i < sha256.Length; i++)
-        {
-            byte b = sha256[i];
-            int hi = b >> 4, lo = b & 0xF;
-            hex[i * 2] = (char) (hi < 10 ? '0' + hi : 'A' + (hi - 10));
-            hex[i * 2 + 1] = (char) (lo < 10 ? '0' + lo : 'A' + (lo - 10));
-        }
-
-        var thumbHex = new string(hex); // e.g., “AB12…”
-
-        return await Validate(thumbHex, cancellationToken).NoSync();
+        return await Validate(data.ToSha256Hex(), cancellationToken).NoSync();
     }
 
     public async ValueTask<bool> Validate(string thumbprint, CancellationToken cancellationToken = default)
@@ -86,7 +63,7 @@ public sealed class CloudflareRequestValidator : Validator, ICloudflareRequestVa
             return false;
         }
 
-        if ((await _thumbprintsSet.Get(cancellationToken)).Contains(thumbprint))
+        if ((await _thumbprintsSet.Get(cancellationToken).NoSync()).Contains(thumbprint))
         {
             if (_log)
                 Logger.LogDebug("Incoming certificate thumbprint ({incoming}) is not a current Cloudflare certificate thumbprint", thumbprint);

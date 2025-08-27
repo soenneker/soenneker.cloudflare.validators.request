@@ -7,6 +7,7 @@ using Soenneker.Extensions.String;
 using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.AsyncSingleton;
 using Soenneker.Utils.File.Abstract;
+using Soenneker.Utils.Paths.Resources;
 using Soenneker.Validators.Validator;
 using System;
 using System.Collections.Generic;
@@ -30,9 +31,9 @@ public sealed class CloudflareRequestValidator : Validator, ICloudflareRequestVa
 
         _thumbprintsSet = new AsyncSingleton<HashSet<string>>(async (token, _) =>
         {
-            return await fileUtil.ReadToHashSet(Path.Combine("Resources", "cloudflareorigincerts.txt"), StringComparer.OrdinalIgnoreCase,
-                                     cancellationToken: token)
-                                 .NoSync();
+            string path = ResourcesPathUtil.GetResourceFilePath("cloudflareorigincerts.txt");
+
+            return await fileUtil.ReadToHashSet(path, StringComparer.OrdinalIgnoreCase, cancellationToken: token).NoSync();
         });
     }
 

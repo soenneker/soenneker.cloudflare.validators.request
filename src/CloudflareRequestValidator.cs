@@ -11,7 +11,6 @@ using Soenneker.Utils.Paths.Resources;
 using Soenneker.Validators.Validator;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;

@@ -26,7 +26,7 @@ public sealed class CloudflareRequestValidator : Validator, ICloudflareRequestVa
 
     public CloudflareRequestValidator(ILogger<CloudflareRequestValidator> logger, IFileUtil fileUtil, IConfiguration configuration) : base(logger)
     {
-        _log = configuration.GetValue<bool>("CloudflareRequestValidator:Log");
+        _log = configuration.GetValue<bool>("Cloudflare:RequestValidatorLog");
 
         _thumbprintsSet = new AsyncSingleton<HashSet<string>>(async (token, _) =>
         {

@@ -30,7 +30,7 @@ public sealed class CloudflareRequestValidator : Validator, ICloudflareRequestVa
 
         _thumbprintsSet = new AsyncSingleton<HashSet<string>>(async (token, _) =>
         {
-            string path = ResourcesPathUtil.GetResourceFilePath("cloudflareorigincerts.txt");
+            string path = await ResourcesPathUtil.GetResourceFilePath("cloudflareorigincerts.txt").NoSync();
 
             return await fileUtil.ReadToHashSet(path, StringComparer.OrdinalIgnoreCase, cancellationToken: token).NoSync();
         });

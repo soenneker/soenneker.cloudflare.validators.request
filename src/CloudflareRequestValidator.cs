@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Soenneker.Cloudflare.Validators.Request.Abstract;
-using Soenneker.Extensions.Spans.Readonly;
 using Soenneker.Extensions.String;
 using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.AsyncSingleton;
@@ -14,6 +13,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
+using Soenneker.Extensions.Spans.Readonly.Bytes;
 
 namespace Soenneker.Cloudflare.Validators.Request;
 

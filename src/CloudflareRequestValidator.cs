@@ -28,7 +28,7 @@ public sealed class CloudflareRequestValidator : Validator, ICloudflareRequestVa
     {
         _log = configuration.GetValue<bool>("Cloudflare:RequestValidatorLog");
 
-        _thumbprintsSet = new AsyncSingleton<HashSet<string>>(async (token, _) =>
+        _thumbprintsSet = new AsyncSingleton<HashSet<string>>(async (token) =>
         {
             string path = await ResourcesPathUtil.GetResourceFilePath("cloudflareorigincerts.txt").NoSync();
 

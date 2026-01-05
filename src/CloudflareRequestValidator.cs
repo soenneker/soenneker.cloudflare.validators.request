@@ -21,19 +21,23 @@ namespace Soenneker.Cloudflare.Validators.Request;
 public sealed class CloudflareRequestValidator : Validator, ICloudflareRequestValidator
 {
     private readonly AsyncSingleton<HashSet<string>> _thumbprintsSet;
+    private readonly IFileUtil _fileUtil;
 
     private readonly bool _log;
 
     public CloudflareRequestValidator(ILogger<CloudflareRequestValidator> logger, IFileUtil fileUtil, IConfiguration configuration) : base(logger)
     {
+        _fileUtil = fileUtil;
         _log = configuration.GetValue<bool>("Cloudflare:RequestValidatorLog");
 
-        _thumbprintsSet = new AsyncSingleton<HashSet<string>>(async (token) =>
-        {
-            string path = await ResourcesPathUtil.GetResourceFilePath("cloudflareorigincerts.txt").NoSync();
+        _thumbprintsSet = new AsyncSingleton<HashSet<string>>(CreateThumbprintsSet);
+    }
 
-            return await fileUtil.ReadToHashSet(path, StringComparer.OrdinalIgnoreCase, cancellationToken: token).NoSync();
-        });
+    private async ValueTask<HashSet<string>> CreateThumbprintsSet(CancellationToken token)
+    {
+        string path = await ResourcesPathUtil.GetResourceFilePath("cloudflareorigincerts.txt").NoSync();
+
+        return await _fileUtil.ReadToHashSet(path, StringComparer.OrdinalIgnoreCase, cancellationToken: token).NoSync();
     }
 
     public async ValueTask<bool> IsFromCloudflare(HttpContext context, CancellationToken cancellationToken = default)

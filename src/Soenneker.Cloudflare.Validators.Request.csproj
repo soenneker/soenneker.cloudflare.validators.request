@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 
 <Project Sdk="Microsoft.NET.Sdk">
 
@@ -50,8 +50,8 @@
     <ItemGroup>
         <PackageReference Include="Soenneker.Cloudflare.OriginCerts.Thumbprints" Version="4.0.13" PrivateAssets="analyzers;build" />
         <PackageReference Include="Soenneker.Extensions.Spans.Readonly.Bytes" Version="4.0.11" />
-        <PackageReference Include="Soenneker.Utils.File" Version="4.0.2058" />
-        <PackageReference Include="Soenneker.Utils.Paths.Resources" Version="4.0.69" />
+        <PackageReference Include="Soenneker.Utils.File" Version="4.0.2060" />
+        <PackageReference Include="Soenneker.Utils.Paths.Resources" Version="4.0.71" />
         <PackageReference Include="Soenneker.Validators.Validator" Version="4.0.711" />
     </ItemGroup>
 </Project>

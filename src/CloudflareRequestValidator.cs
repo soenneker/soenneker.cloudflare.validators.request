@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Soenneker.Cloudflare.Validators.Request.Abstract;
@@ -6,7 +6,7 @@ using Soenneker.Extensions.String;
 using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.AsyncSingleton;
 using Soenneker.Utils.File.Abstract;
-using Soenneker.Utils.Paths.Resources;
+using Soenneker.Utils.Paths.Resources.Abstract;
 using Soenneker.Validators.Validator;
 using System;
 using System.Collections.Generic;
@@ -22,12 +22,14 @@ public sealed class CloudflareRequestValidator : Validator, ICloudflareRequestVa
 {
     private readonly AsyncSingleton<HashSet<string>> _thumbprintsSet;
     private readonly IFileUtil _fileUtil;
+    private readonly IResourcesPathUtil _resourcesPathUtil;
 
     private readonly bool _log;
 
-    public CloudflareRequestValidator(ILogger<CloudflareRequestValidator> logger, IFileUtil fileUtil, IConfiguration configuration) : base(logger)
+    public CloudflareRequestValidator(ILogger<CloudflareRequestValidator> logger, IFileUtil fileUtil, IResourcesPathUtil resourcesPathUtil, IConfiguration configuration) : base(logger)
     {
         _fileUtil = fileUtil;
+        _resourcesPathUtil = resourcesPathUtil;
         _log = configuration.GetValue<bool>("Cloudflare:RequestValidatorLog");
 
         _thumbprintsSet = new AsyncSingleton<HashSet<string>>(CreateThumbprintsSet);
@@ -35,7 +37,7 @@ public sealed class CloudflareRequestValidator : Validator, ICloudflareRequestVa
 
     private async ValueTask<HashSet<string>> CreateThumbprintsSet(CancellationToken token)
     {
-        string path = await ResourcesPathUtil.GetResourceFilePath("cloudflareorigincerts.txt").NoSync();
+        string path = await _resourcesPathUtil.GetResourceFilePath("cloudflareorigincerts.txt", token).NoSync();
 
         return await _fileUtil.ReadToHashSet(path, StringComparer.OrdinalIgnoreCase, cancellationToken: token).NoSync();
     }

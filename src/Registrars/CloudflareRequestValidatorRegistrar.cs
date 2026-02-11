@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Soenneker.Cloudflare.Validators.Request.Abstract;
 using Soenneker.Utils.File.Registrars;
+using Soenneker.Utils.Paths.Resources.Registrars;
 
 namespace Soenneker.Cloudflare.Validators.Request.Registrars;
 
@@ -15,7 +16,7 @@ public static class CloudflareRequestValidatorRegistrar
     /// </summary>
     public static IServiceCollection AddCloudflareRequestValidatorAsSingleton(this IServiceCollection services)
     {
-        services.AddFileUtilAsSingleton().TryAddSingleton<ICloudflareRequestValidator, CloudflareRequestValidator>();
+        services.AddResourcesPathUtilAsSingleton().AddFileUtilAsSingleton().TryAddSingleton<ICloudflareRequestValidator, CloudflareRequestValidator>();
 
         return services;
     }
@@ -25,7 +26,7 @@ public static class CloudflareRequestValidatorRegistrar
     /// </summary>
     public static IServiceCollection AddCloudflareRequestValidatorAsScoped(this IServiceCollection services)
     {
-        services.AddFileUtilAsScoped().TryAddScoped<ICloudflareRequestValidator, CloudflareRequestValidator>();
+        services.AddResourcesPathUtilAsScoped().AddFileUtilAsScoped().TryAddScoped<ICloudflareRequestValidator, CloudflareRequestValidator>();
 
         return services;
     }

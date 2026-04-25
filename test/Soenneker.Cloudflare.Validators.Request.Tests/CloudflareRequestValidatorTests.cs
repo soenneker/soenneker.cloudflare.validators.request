@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Soenneker.Cloudflare.Validators.Request.Abstract;
@@ -22,9 +23,9 @@ public sealed class CloudflareRequestValidatorTests : HostedUnitTest
     }
 
     [Test]
-    public async ValueTask Validate_should_be_true()
+    public async ValueTask Validate_should_be_true(CancellationToken cancellationToken)
     {
-        bool result = await _validator.Validate("1F5BA8DCF83E6453DD75C47780906710901AD641", CancellationToken);
+        bool result = await _validator.Validate("1F5BA8DCF83E6453DD75C47780906710901AD641", cancellationToken);
 
         result.Should()
               .BeTrue();

@@ -55,7 +55,7 @@
         <PackageReference Include="Soenneker.Extensions.Spans.Readonly.Bytes" Version="4.0.45" />
         <PackageReference Include="Soenneker.Utils.File" Version="4.0.2171" />
         <PackageReference Include="Soenneker.Utils.Paths.Resources" Version="4.0.157" />
-        <PackageReference Include="Soenneker.Validators.Validator" Version="4.0.728" />
+        <PackageReference Include="Soenneker.Validators.Validator" Version="4.0.729" />
     </ItemGroup>
 
 </Project>

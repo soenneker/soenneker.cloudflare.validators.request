@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Soenneker.Cloudflare.Validators.Request.Abstract;
 using Soenneker.Extensions.String;
 using Soenneker.Extensions.ValueTask;
+using Soenneker.Extensions.Spans.Readonly.Bytes;
 using Soenneker.Utils.AsyncSingleton;
 using Soenneker.Utils.File.Abstract;
 using Soenneker.Utils.Paths.Resources.Abstract;
@@ -13,7 +14,6 @@ using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using Soenneker.Extensions.Spans.Readonly.Bytes;
 
 namespace Soenneker.Cloudflare.Validators.Request;
 
@@ -72,7 +72,7 @@ public sealed class CloudflareRequestValidator : Validator, ICloudflareRequestVa
         if ((await _thumbprintsSet.Get(cancellationToken).NoSync()).Contains(thumbprint))
         {
             if (_log)
-                Logger.LogDebug("Incoming certificate thumbprint ({incoming}) is not a current Cloudflare certificate thumbprint", thumbprint);
+                Logger.LogDebug("Incoming certificate thumbprint ({incoming}) is a current Cloudflare certificate thumbprint", thumbprint);
 
             return true;
         }

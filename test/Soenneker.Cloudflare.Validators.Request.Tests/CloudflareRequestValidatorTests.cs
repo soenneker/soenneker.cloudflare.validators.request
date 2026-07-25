@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Http;
+using System;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,7 +36,29 @@ public sealed class CloudflareRequestValidatorTests : HostedUnitTest
     }
 
     [Test]
-    public async ValueTask IsFromCloudflare_should_be_true_for_shared_AOP_certificate(CancellationToken cancellationToken)
+    public void ValidateCertificateChain_should_accept_client_certificate_signed_by_CA()
+    {
+        using RSA caKey = RSA.Create(2048);
+        var caRequest = new CertificateRequest("CN=Test CA", caKey, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+        caRequest.CertificateExtensions.Add(new X509BasicConstraintsExtension(true, false, 0, true));
+        caRequest.CertificateExtensions.Add(new X509KeyUsageExtension(X509KeyUsageFlags.KeyCertSign, true));
+        using X509Certificate2 ca = caRequest.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow.AddDays(1));
+
+        using RSA leafKey = RSA.Create(2048);
+        var leafRequest = new CertificateRequest("CN=origin-pull.cloudflare.net", leafKey, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+        var usages = new OidCollection { new("1.3.6.1.5.5.7.3.2") };
+        leafRequest.CertificateExtensions.Add(new X509EnhancedKeyUsageExtension(usages, true));
+        leafRequest.CertificateExtensions.Add(new X509BasicConstraintsExtension(false, false, 0, true));
+        byte[] serial = RandomNumberGenerator.GetBytes(16);
+        using X509Certificate2 leaf = leafRequest.Create(ca, DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow.AddHours(1), serial);
+
+        CloudflareRequestValidator.ValidateCertificateChain(leaf, ca)
+                                  .Should()
+                                  .BeTrue();
+    }
+
+    [Test]
+    public async ValueTask IsFromCloudflare_should_reject_CA_as_client_certificate(CancellationToken cancellationToken)
     {
         const string pem = """
                            -----BEGIN CERTIFICATE-----
@@ -81,6 +105,6 @@ public sealed class CloudflareRequestValidatorTests : HostedUnitTest
         bool result = await _validator.IsFromCloudflare(context, cancellationToken);
 
         result.Should()
-              .BeTrue();
+              .BeFalse();
     }
 }

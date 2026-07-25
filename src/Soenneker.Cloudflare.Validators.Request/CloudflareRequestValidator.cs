@@ -4,13 +4,12 @@ using Microsoft.Extensions.Logging;
 using Soenneker.Cloudflare.Validators.Request.Abstract;
 using Soenneker.Extensions.String;
 using Soenneker.Extensions.ValueTask;
-using Soenneker.Extensions.Spans.Readonly.Bytes;
 using Soenneker.Utils.AsyncSingleton;
 using Soenneker.Utils.File.Abstract;
 using Soenneker.Utils.Paths.Resources.Abstract;
 using Soenneker.Validators.Validator;
 using System;
-using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,7 +19,8 @@ namespace Soenneker.Cloudflare.Validators.Request;
 /// <inheritdoc cref="ICloudflareRequestValidator"/>
 public sealed class CloudflareRequestValidator : Validator, ICloudflareRequestValidator
 {
-    private readonly AsyncSingleton<HashSet<string>> _thumbprintsSet;
+    private const string ClientAuthenticationOid = "1.3.6.1.5.5.7.3.2";
+    private readonly AsyncSingleton<byte[]> _caCertificate;
     private readonly IFileUtil _fileUtil;
     private readonly IResourcesPathUtil _resourcesPathUtil;
 
@@ -32,14 +32,19 @@ public sealed class CloudflareRequestValidator : Validator, ICloudflareRequestVa
         _resourcesPathUtil = resourcesPathUtil;
         _log = configuration.GetValue<bool>("Cloudflare:RequestValidatorLog");
 
-        _thumbprintsSet = new AsyncSingleton<HashSet<string>>(CreateThumbprintsSet);
+        _caCertificate = new AsyncSingleton<byte[]>(LoadCaCertificate);
     }
 
-    private async ValueTask<HashSet<string>> CreateThumbprintsSet(CancellationToken token)
+    private async ValueTask<byte[]> LoadCaCertificate(CancellationToken token)
     {
-        string path = await _resourcesPathUtil.GetResourceFilePath("cloudflareorigincerts.txt", token).NoSync();
+        string path = await _resourcesPathUtil.GetResourceFilePath("cloudflareorigincerts.pem", token).NoSync();
+        string? pem = await _fileUtil.TryRead(path, cancellationToken: token).NoSync();
 
-        return await _fileUtil.ReadToHashSet(path, StringComparer.OrdinalIgnoreCase, cancellationToken: token).NoSync();
+        if (pem.IsNullOrWhiteSpace())
+            throw new InvalidOperationException($"Cloudflare AOP CA certificate was not found at {path}");
+
+        using X509Certificate2 certificate = X509Certificate2.CreateFromPem(pem);
+        return certificate.RawData;
     }
 
     public async ValueTask<bool> IsFromCloudflare(HttpContext context, CancellationToken cancellationToken = default)
@@ -54,9 +59,27 @@ public sealed class CloudflareRequestValidator : Validator, ICloudflareRequestVa
             return false;
         }
 
-        ReadOnlySpan<byte> data = cert.RawData;
+        byte[] caRawData = await _caCertificate.Get(cancellationToken).NoSync();
+        using X509Certificate2 caCertificate = X509CertificateLoader.LoadCertificate(caRawData);
+        bool valid = ValidateCertificateChain(cert, caCertificate);
 
-        return await Validate(data.ToSha256Hex(), cancellationToken).NoSync();
+        if (_log)
+            Logger.LogDebug("Cloudflare client certificate chain validation result: {valid}", valid);
+
+        return valid;
+    }
+
+    internal static bool ValidateCertificateChain(X509Certificate2 certificate, X509Certificate2 caCertificate)
+    {
+        using var chain = new X509Chain();
+        chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
+        chain.ChainPolicy.CustomTrustStore.Add(caCertificate);
+        chain.ChainPolicy.ApplicationPolicy.Add(new Oid(ClientAuthenticationOid));
+        chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+        chain.ChainPolicy.DisableCertificateDownloads = true;
+        chain.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;
+
+        return chain.Build(certificate) && chain.ChainElements.Count > 1;
     }
 
     public async ValueTask<bool> Validate(string thumbprint, CancellationToken cancellationToken = default)
@@ -69,15 +92,9 @@ public sealed class CloudflareRequestValidator : Validator, ICloudflareRequestVa
             return false;
         }
 
-        if ((await _thumbprintsSet.Get(cancellationToken).NoSync()).Contains(thumbprint))
-        {
-            if (_log)
-                Logger.LogDebug("Incoming certificate thumbprint ({incoming}) is a current Cloudflare certificate thumbprint", thumbprint);
-
-            return true;
-        }
-
-        return false;
+        byte[] caRawData = await _caCertificate.Get(cancellationToken).NoSync();
+        string expected = Convert.ToHexString(SHA256.HashData(caRawData));
+        return expected.Equals(thumbprint, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -86,7 +103,7 @@ public sealed class CloudflareRequestValidator : Validator, ICloudflareRequestVa
     /// <returns>A task that represents the asynchronous operation.</returns>
     public ValueTask DisposeAsync()
     {
-        return _thumbprintsSet.DisposeAsync();
+        return _caCertificate.DisposeAsync();
     }
 
     /// <summary>
@@ -94,6 +111,6 @@ public sealed class CloudflareRequestValidator : Validator, ICloudflareRequestVa
     /// </summary>
     public void Dispose()
     {
-        _thumbprintsSet.Dispose();
+        _caCertificate.Dispose();
     }
 }

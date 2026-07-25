@@ -51,8 +51,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Soenneker.Cloudflare.OriginCerts.Thumbprints" Version="4.0.35" PrivateAssets="analyzers;build" />
-        <PackageReference Include="Soenneker.Extensions.Spans.Readonly.Bytes" Version="4.0.52" />
+        <InternalsVisibleTo Include="Soenneker.Cloudflare.Validators.Request.Tests" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Soenneker.Cloudflare.OriginCerts.Thumbprints" Version="4.0.36" PrivateAssets="analyzers;build" />
         <PackageReference Include="Soenneker.Utils.File" Version="4.0.2200" />
         <PackageReference Include="Soenneker.Utils.Paths.Resources" Version="4.0.192" />
         <PackageReference Include="Soenneker.Validators.Validator" Version="4.0.732" />

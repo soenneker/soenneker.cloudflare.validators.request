@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 namespace Soenneker.Cloudflare.Validators.Request.Abstract;
 
 /// <summary>
-/// A validation module checking if a particular request has a Cloudflare origin certificate
+/// Validates ASP.NET Core client certificates against Cloudflare's Authenticated Origin Pull CA.
 /// </summary>
 public interface ICloudflareRequestValidator : IValidator, IDisposable, IAsyncDisposable
 {
     /// <summary>
-    /// Executes the is from cloudflare operation.
+    /// Validates the request's TLS client certificate chain against the packaged Cloudflare Authenticated Origin Pull CA.
     /// </summary>
     /// <param name="context">The context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
@@ -22,9 +22,9 @@ public interface ICloudflareRequestValidator : IValidator, IDisposable, IAsyncDi
     ValueTask<bool> IsFromCloudflare(HttpContext context, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the validate operation.
+    /// Compares a SHA-256 certificate fingerprint with the packaged Cloudflare Authenticated Origin Pull CA certificate.
     /// </summary>
-    /// <param name="thumbprint">The thumbprint.</param>
+    /// <param name="thumbprint">The hexadecimal SHA-256 fingerprint to compare.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task containing the result of the operation.</returns>
     [Pure]

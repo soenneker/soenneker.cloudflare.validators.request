@@ -10,7 +10,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Description>A validation module checking if a particular request has a Cloudflare origin certificate</Description>
+        <Description>Validates ASP.NET Core client certificates against Cloudflare's Authenticated Origin Pull CA.</Description>
         <Version Condition="'$(BUILD_VERSION)' == ''">4.0.0</Version>
         <Version Condition="'$(BUILD_VERSION)' != ''">$(BUILD_VERSION)</Version>
         <AssemblyName>Soenneker.Cloudflare.Validators.Request</AssemblyName>

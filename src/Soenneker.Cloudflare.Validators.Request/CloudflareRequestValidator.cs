@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Soenneker.Cloudflare.Validators.Request.Abstract;
 using Soenneker.Extensions.String;
 using Soenneker.Extensions.ValueTask;
+using Soenneker.Hashing.Sha256;
 using Soenneker.Utils.AsyncSingleton;
 using Soenneker.Utils.File.Abstract;
 using Soenneker.Utils.Paths.Resources.Abstract;
@@ -19,6 +20,8 @@ namespace Soenneker.Cloudflare.Validators.Request;
 /// <inheritdoc cref="ICloudflareRequestValidator" />
 public sealed class CloudflareRequestValidator : Validator, ICloudflareRequestValidator
 {
+    private static readonly Sha256HashingUtil _sha256 = new();
+
     private const string ClientAuthenticationOid = "1.3.6.1.5.5.7.3.2";
     private readonly AsyncSingleton<byte[]> _caCertificate;
     private readonly IFileUtil _fileUtil;
@@ -93,7 +96,7 @@ public sealed class CloudflareRequestValidator : Validator, ICloudflareRequestVa
         }
 
         byte[] caRawData = await _caCertificate.Get(cancellationToken).NoSync();
-        string expected = Convert.ToHexString(SHA256.HashData(caRawData));
+        string expected = Convert.ToHexString(_sha256.Hash(caRawData));
         return expected.Equals(thumbprint, StringComparison.OrdinalIgnoreCase);
     }
 

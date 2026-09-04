@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 
 namespace Soenneker.Cloudflare.Validators.Request;
 
+/// <inheritdoc cref="ICloudflareRequestValidator" />
 public sealed class CloudflareRequestValidator : Validator, ICloudflareRequestValidator
 {
     private const string ClientAuthenticationOid = "1.3.6.1.5.5.7.3.2";

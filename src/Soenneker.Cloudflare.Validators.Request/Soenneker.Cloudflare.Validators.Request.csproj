@@ -55,7 +55,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Soenneker.Cloudflare.OriginCerts.Thumbprints" Version="4.0.39" PrivateAssets="analyzers;build" />
+        <PackageReference Include="Soenneker.Cloudflare.OriginCerts.Thumbprints" Version="4.0.40" PrivateAssets="analyzers;build" />
         <PackageReference Include="Soenneker.Hashing.Sha256" Version="4.0.3" />
         <PackageReference Include="Soenneker.Utils.File" Version="4.0.2261" />
         <PackageReference Include="Soenneker.Utils.Paths.Resources" Version="4.0.251" />

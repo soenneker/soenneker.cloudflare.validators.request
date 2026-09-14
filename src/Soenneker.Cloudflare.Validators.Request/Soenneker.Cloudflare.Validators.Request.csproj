@@ -59,7 +59,7 @@
         <PackageReference Include="Soenneker.Hashing.Sha256" Version="4.0.4" />
         <PackageReference Include="Soenneker.Utils.File" Version="4.0.2273" />
         <PackageReference Include="Soenneker.Utils.Paths.Resources" Version="4.0.259" />
-        <PackageReference Include="Soenneker.Validators.Validator" Version="4.0.739" />
+        <PackageReference Include="Soenneker.Validators.Validator" Version="4.0.740" />
     </ItemGroup>
 
 </Project>

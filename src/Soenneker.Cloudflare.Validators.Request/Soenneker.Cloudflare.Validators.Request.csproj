@@ -57,13 +57,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Soenneker.Cloudflare.OriginCerts.Thumbprints" Version="4.0.45" PrivateAssets="analyzers;build" />
-        <PackageReference Include="Soenneker.Utils.File" Version="4.0.2303" />
-        <PackageReference Include="Soenneker.Utils.Paths.Resources" Version="4.0.283" />
-        <PackageReference Include="Soenneker.Validators.Validator" Version="4.0.745" />
+        <PackageReference Include="Soenneker.Cloudflare.OriginCerts.Thumbprints" Version="4.0.50" PrivateAssets="analyzers;build" />
+        <PackageReference Include="Soenneker.Utils.File" Version="4.0.2314" />
+        <PackageReference Include="Soenneker.Utils.Paths.Resources" Version="4.0.291" />
+        <PackageReference Include="Soenneker.Validators.Validator" Version="4.0.751" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Soenneker.Extensions.ValueTask" Version="4.0.127" />
+        <PackageReference Include="Soenneker.Extensions.ValueTask" Version="4.0.132" />
     </ItemGroup>
 </Project>

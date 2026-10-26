@@ -60,7 +60,7 @@
         <PackageReference Include="Soenneker.Cloudflare.OriginCerts.Thumbprints" Version="4.0.51" PrivateAssets="analyzers;build" />
         <PackageReference Include="Soenneker.Utils.File" Version="4.0.2319" />
         <PackageReference Include="Soenneker.Utils.Paths.Resources" Version="4.0.297" />
-        <PackageReference Include="Soenneker.Validators.Validator" Version="4.0.752" />
+        <PackageReference Include="Soenneker.Validators.Validator" Version="4.0.753" />
     </ItemGroup>
 
     <ItemGroup>

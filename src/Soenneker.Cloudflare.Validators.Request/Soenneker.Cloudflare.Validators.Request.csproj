@@ -3,7 +3,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
+        <TargetFramework>net11.0</TargetFramework>
         <IsAotCompatible>true</IsAotCompatible>
         <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
         <Nullable>enable</Nullable>
@@ -13,7 +13,7 @@
 
     <PropertyGroup>
         <Description>Validates ASP.NET Core client certificates against Cloudflare's Authenticated Origin Pull CA.</Description>
-        <Version Condition="'$(BUILD_VERSION)' == ''">4.0.0</Version>
+        <Version Condition="'$(BUILD_VERSION)' == ''">11.0.0</Version>
         <Version Condition="'$(BUILD_VERSION)' != ''">$(BUILD_VERSION)</Version>
         <AssemblyName>Soenneker.Cloudflare.Validators.Request</AssemblyName>
         <PackageId>Soenneker.Cloudflare.Validators.Request</PackageId>
@@ -58,9 +58,9 @@
 
     <ItemGroup>
         <PackageReference Include="Soenneker.Cloudflare.OriginCerts.Thumbprints" Version="4.0.51" PrivateAssets="analyzers;build" />
-        <PackageReference Include="Soenneker.Utils.File" Version="4.0.2319" />
+        <PackageReference Include="Soenneker.Utils.File" Version="4.0.2320" />
         <PackageReference Include="Soenneker.Utils.Paths.Resources" Version="4.0.297" />
-        <PackageReference Include="Soenneker.Validators.Validator" Version="4.0.752" />
+        <PackageReference Include="Soenneker.Validators.Validator" Version="4.0.753" />
     </ItemGroup>
 
     <ItemGroup>
